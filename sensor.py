@@ -9,7 +9,8 @@ hub = PrimeHub()
 
 sensor = ForceSensor(Port.A)
 
-while true:
+def emergency():
+    while true:
     forca = sensor.force()
 
     if forca >= 5:
