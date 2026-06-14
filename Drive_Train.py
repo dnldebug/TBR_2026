@@ -30,13 +30,12 @@ def rotate(graus):
 
 
 def andar_pid(dist_cm, velocidade=300):
-    #valores so pra preencher,tem que calibrar
     KP = 2.5
     KI = 0.01
     KD = 1.5
 
-    dist_mm     = dist_cm * 10
-    heading_alvo = hub.imu.heading()  # esse aq é o angulo pra manter
+    dist_mm      = dist_cm * 10
+    heading_alvo = drive_base.heading()
 
     erro_anterior = 0
     integral      = 0
@@ -46,25 +45,21 @@ def andar_pid(dist_cm, velocidade=300):
     drive_base.reset()
 
     while drive_base.distance() < dist_mm:
-        #formula pra Calcular dt 
         agora = timer.time()
-        dt    = (agora - dt_anterior) / 1000  # converte ms → s
-        dt    = max(dt, 0.001)                # evita divisão por zero
+        dt    = max((agora - dt_anterior) / 1000, 0.001)
         dt_anterior = agora
 
-        #O Erro de heading
-        erro     = heading_alvo - hub.imu.heading()
-
-        #os Termos doPID
+        erro      = heading_alvo - drive_base.heading()
         integral  += erro * dt
         derivada   = (erro - erro_anterior) / dt
         correcao   = (KP * erro) + (KI * integral) + (KD * derivada)
-
         erro_anterior = erro
 
-        # esse aq é um métodfo pra Aplicar a correção
-        drive_base.drive(velocidade, correcao)
+        # aplica correção diretamente nos motores
+        me.dc(min(100, max(-100, (velocidade + correcao) / 10)))
+        md.dc(min(100, max(-100, (velocidade - correcao) / 10)))
 
-        wait(10)  # aqui é um ciclo de 10ms
+        wait(10)
 
-    drive_base.stop()
+    me.brake()
+    md.brake()
