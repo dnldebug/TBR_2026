@@ -5,6 +5,7 @@ from pybricks.robotics import DriveBase
 from pybricks.tools import wait, StopWatch
 from Drive_Train import andar, rotate, turn,md,claw
 from bip import bipar
+from Consts import claw,openn,high
 
 hub = PrimeHub()
 
